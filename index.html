@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiosk</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fff;
+    }
+
+    #slideshow {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #slide {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="slideshow">
+    <img id="slide" src="" alt="" />
+  </div>
+
+  <script>
+    function loadGallery() {
+      return fetch('images/')
+        .then(r => r.json())
+        .then(images => {
+          console.log('Got images:', images);
+          return images;
+        })
+        .catch(err => {
+          console.error('Error fetching images:', err);
+          return [];
+        });
+    }
+
+    window.loadGallery = loadGallery;
+
+    function startSlideshow(slides, intervalMs = 10000) {
+      if (!Array.isArray(slides) || slides.length === 0) {
+        console.error('Invalid slides array');
+        return;
+      }
+      const imgEl = document.getElementById('slide');
+      let currentIndex = 0;
+
+      const show = () => {
+        console.log(`Showing slide ${currentIndex}:`, slides[currentIndex]);
+        imgEl.src = slides[currentIndex];
+        currentIndex = (currentIndex + 1) % slides.length;
+      };
+
+      show();
+      return setInterval(show, intervalMs);
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const slides = await loadGallery();
+      window.slides = slides;
+      if (slides.length > 0) {
+        startSlideshow(slides);
+      } else {
+        console.error('No slides found');
+      }
+    });
+  </script>
+</body>
+
+</html>

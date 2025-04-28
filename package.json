@@ -1,0 +1,13 @@
+{
+  "name": "kiosk",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "repository": "https://github.com/adambozson/greenbank-kiosk",
+  "author": "Adam Bozson <adam@bozson.io>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
