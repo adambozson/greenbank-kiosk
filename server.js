@@ -1,10 +1,5 @@
 import express from 'express';
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const argv = process.argv.slice(2);
 
@@ -33,11 +28,21 @@ const app = express();
 
 app.use('/', express.static('public'));
 app.use('/img', express.static(IMAGE_DIR));
+app.use('/placeholder', express.static('img'));
 
 app.get('/images', (_req, res) => {
-  const files = fs.readdirSync(IMAGE_DIR)
+  let files = fs.readdirSync(IMAGE_DIR)
     .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
     .map(f => `/img/${encodeURIComponent(f)}`);
+
+  // If no images are found in the specified directory,
+  // fall back to the placeholder directory (pics of doggos)
+  if (files.length === 0) {
+    files = fs.readdirSync('img')
+      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
+      .map(f => `/placeholder/${encodeURIComponent(f)}`);
+  }
+
   res.json(files);
 });
 
