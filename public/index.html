@@ -13,6 +13,7 @@
       align-items: center;
       height: 100vh;
       background-color: #fff;
+      cursor: none;
     }
 
     #slideshow {
@@ -100,6 +101,22 @@
       show();
       return setInterval(show, intervalMs);
     }
+
+    // Hide cursor after 1s of inactivity
+    let cursorTimer;
+    const hideCursor = () => {
+      clearTimeout(cursorTimer);
+      cursorTimer = setTimeout(() => {
+        document.body.style.cursor = 'none';
+      }, 1000);
+    };
+    // On movement, show cursor and restart hide timer
+    document.addEventListener('mousemove', () => {
+      document.body.style.cursor = 'auto';
+      hideCursor();
+    });
+    // Initialize
+    hideCursor();
 
     window.addEventListener('DOMContentLoaded', async () => {
       const slides = await loadGallery();
