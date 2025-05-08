@@ -36,10 +36,11 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      transform: rotate(-90deg);
-      /* start arc at the top */
       pointer-events: none;
-      /* ignore mouse */
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(#005EB8 360deg, transparent 0deg);
     }
   </style>
 </head>
@@ -49,26 +50,18 @@
     <img id="slide" src="" alt="" />
   </div>
 
-  <svg id="timer" width="60" height="60" viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="45" stroke="#444" stroke-width="8" fill="none" />
-    <circle id="progressArc" cx="50" cy="50" r="45" stroke="#0af" stroke-width="8" fill="none" stroke-linecap="round"
-      stroke-dasharray="282.6" stroke-dashoffset="282.6" />
-  </svg>
+  <div id="timer"></div>
 
   <script>
-    const RADIUS = 45;
-    const CIRC = 2 * Math.PI * RADIUS;
-    const arcEl = document.getElementById('progressArc');
-    arcEl.style.strokeDasharray = CIRC;
+    const timerEl = document.getElementById('timer');
 
     function animateProgress(duration) {
       const start = performance.now();
 
-      arcEl.style.strokeDashoffset = CIRC; // reset arc to empty
-
       function frame(now) {
-        const t = Math.min((now - start) / duration, 1);  // 0 -> 1
-        arcEl.style.strokeDashoffset = CIRC * (1 - t); // animate arc
+        const t = Math.min((now - start) / duration, 1);
+        const deg = 360 * t;
+        timerEl.style.background = `conic-gradient(transparent 0deg, transparent ${deg}deg, #005EB8 ${deg}deg 360deg)`;
         if (t < 1) requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
@@ -89,7 +82,7 @@
 
     window.loadGallery = loadGallery;
 
-    function startSlideshow(slides, intervalMs = 10000) {
+    function startSlideshow(slides, intervalMs = 30000) {
       if (!Array.isArray(slides) || slides.length === 0) {
         console.error('Invalid slides array');
         return;
