@@ -54,6 +54,14 @@
   <div id="timer"></div>
 
   <script>
+    const DEFAULT_UPDATE_INTERVAL = 30000; // 30 seconds
+    // Override update interval via URL query parameter (seconds)
+    const params = new URLSearchParams(window.location.search);
+    const intervalParam = parseInt(params.get('interval'), 10);
+    const UPDATE_INTERVAL = Number.isInteger(intervalParam) && intervalParam > 0
+      ? intervalParam * 1000
+      : DEFAULT_UPDATE_INTERVAL;
+
     const timerEl = document.getElementById('timer');
 
     function animateProgress(duration) {
@@ -83,23 +91,21 @@
 
     window.loadGallery = loadGallery;
 
-    function startSlideshow(slides, intervalMs = 30000) {
-      if (!Array.isArray(slides) || slides.length === 0) {
-        console.error('Invalid slides array');
-        return;
-      }
+    function startSlideshow() {
       const imgEl = document.getElementById('slide');
-      let currentIndex = 0;
+      let currentIndex = -1;
 
       const show = () => {
+        const slides = window.slides;
+        if (!Array.isArray(slides) || slides.length === 0) return;
+        currentIndex = (currentIndex + 1) % slides.length;
         console.log(`Showing slide ${currentIndex}:`, slides[currentIndex]);
         imgEl.src = slides[currentIndex];
-        currentIndex = (currentIndex + 1) % slides.length;
-        animateProgress(intervalMs);
+        animateProgress(UPDATE_INTERVAL);
       };
 
       show();
-      return setInterval(show, intervalMs);
+      return setInterval(show, UPDATE_INTERVAL);
     }
 
     // Hide cursor after 1s of inactivity
@@ -119,13 +125,14 @@
     hideCursor();
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const slides = await loadGallery();
-      window.slides = slides;
-      if (slides.length > 0) {
-        startSlideshow(slides);
-      } else {
-        console.error('No slides found');
-      }
+      window.slides = await loadGallery();
+      
+      setInterval(async () => {  // Refresh the gallery
+        const newSlides = await loadGallery();
+        window.slides = newSlides;
+      }, UPDATE_INTERVAL);
+      
+      const slideInterval = startSlideshow();
     });
   </script>
 </body>
