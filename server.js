@@ -31,9 +31,15 @@ app.use('/img', express.static(IMAGE_DIR));
 app.use('/placeholder', express.static('img'));
 
 app.get('/images', (_req, res) => {
-  let files = fs.readdirSync(IMAGE_DIR)
-    .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
-    .map(f => `/img/${encodeURIComponent(f)}`);
+  let files;
+  try {
+    files = fs.readdirSync(IMAGE_DIR)
+      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
+      .map(f => `/img/${encodeURIComponent(f)}`);
+  } catch (err) {
+    console.error(err);
+    files = [];
+  }
 
   // If no images are found in the specified directory,
   // fall back to the placeholder directory (pics of doggos)
