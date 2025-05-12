@@ -27,8 +27,16 @@ const HOST = cliHost || process.env.HOST || 'localhost';
 const app = express();
 
 app.use('/', express.static('public'));
-app.use('/img', express.static(IMAGE_DIR));
 app.use('/placeholder', express.static('img'));
+app.use(
+  '/img',
+  express.static(IMAGE_DIR, {
+    etag: false,
+    lastModified: false,
+    maxAge: 0,
+    setHeaders: (res) => res.set('Cache-Control', 'no-store'),
+  })
+);
 
 app.get('/images', (_req, res) => {
   let files;
