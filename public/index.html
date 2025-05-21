@@ -62,6 +62,16 @@
       ? intervalParam * 1000
       : DEFAULT_UPDATE_INTERVAL;
 
+    // Shuffle slides if shuffle URL param is set
+    const shuffleParam = params.get('shuffle');
+    const SHOULD_SHUFFLE = shuffleParam !== null && shuffleParam !== 'false';
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
     const timerEl = document.getElementById('timer');
 
     function animateProgress(duration) {
@@ -80,6 +90,8 @@
       return fetch('images/')
         .then(r => r.json())
         .then(images => {
+          // Shuffle if requested
+          if (SHOULD_SHUFFLE) shuffleArray(images);
           console.log('Got images:', images);
           return images;
         })
