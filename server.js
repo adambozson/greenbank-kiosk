@@ -1,6 +1,12 @@
 import express from 'express';
 import fs from 'fs';
 
+function getImagePaths(dir, prefix) {
+  return fs.readdirSync(dir)
+    .filter(f => !f.startsWith('.') && /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
+    .map(f => `${prefix}/${encodeURIComponent(f)}`);
+}
+
 const argv = process.argv.slice(2);
 
 let cliImgDir = null;
@@ -41,9 +47,7 @@ app.use(
 app.get('/images', (_req, res) => {
   let files;
   try {
-    files = fs.readdirSync(IMAGE_DIR)
-      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
-      .map(f => `/img/${encodeURIComponent(f)}`);
+    files = getImagePaths(IMAGE_DIR, '/img');
   } catch (err) {
     console.error(err);
     files = [];
@@ -52,9 +56,7 @@ app.get('/images', (_req, res) => {
   // If no images are found in the specified directory,
   // fall back to the placeholder directory (pics of doggos)
   if (files.length === 0) {
-    files = fs.readdirSync('img')
-      .filter(f => /\.(png|jpe?g|gif|webp|svg)$/i.test(f))
-      .map(f => `/placeholder/${encodeURIComponent(f)}`);
+    files = getImagePaths('img', '/placeholder');
   }
 
   res.json(files);
